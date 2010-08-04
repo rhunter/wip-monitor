@@ -1,0 +1,5 @@
+Mailboxes: 
+- username: example@gmail.com
+  password: secret1
+- username: googleapps@example.com
+  password: secret2
