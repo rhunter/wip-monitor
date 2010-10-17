@@ -3,3 +3,5 @@ Mailboxes:
   password: secret1
 - username: googleapps@example.com
   password: secret2
+log_to_url: "http://rjhunter.couchone.com/wip_development"
+

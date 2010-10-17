@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'gmail'
 require 'yaml'
+require 'restfulie'
 
 class Gmail
   def starred
@@ -12,9 +13,11 @@ end
 def main
   sources_file = File.expand_path("../../config/sources.yml", __FILE__)
   sources = YAML.load_file(sources_file)
+  log_url = sources['log_to_url']
 
   record_wip_for_mailboxes(sources)
   print_wip
+  post_wip_to_url(log_url) if log_url
 end
 
 def record_wip_for_mailboxes(sources)
@@ -34,6 +37,10 @@ end
 
 def print_wip
   puts @wip.inspect
+end
+
+def post_wip_to_url(log_url)
+  Restfulie.at(log_url).as('application/json').post(@wip)
 end
 
 if __FILE__ == $PROGRAM_NAME
