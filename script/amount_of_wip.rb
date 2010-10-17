@@ -22,17 +22,23 @@ end
 
 def record_wip_for_mailboxes(sources)
   sources['Mailboxes'].each do |mailbox_config|
-    gmail = Gmail.new(mailbox_config['username'], mailbox_config['password'])
-    record_wip_count("Unread messages", gmail.inbox.count(:unread))
-    record_wip_count("Messages in inbox", gmail.inbox.count)
-    record_wip_count("Starred messages", gmail.starred.count)
-    record_wip_count("Drafts", gmail.in_mailbox("Drafts").count)
+    begin
+      gmail = Gmail.new(mailbox_config['username'], mailbox_config['password'])
+      source = mailbox_config['username']
+      record_wip_count(source, "Unread messages", gmail.inbox.count(:unread))
+      record_wip_count(source, "Messages in inbox", gmail.inbox.count)
+      record_wip_count(source, "Starred messages", gmail.starred.count)
+      record_wip_count(source, "Drafts", gmail.in_mailbox("Drafts").count)
+    rescue Net::IMAP::NoResponseError
+      STDERR.puts "No response for #{source}. Check the details in config/sources.yml"
+    end
   end
 end
 
-def record_wip_count(category, count)
-  @wip ||= Hash.new(0)
-  @wip[category] += count
+def record_wip_count(source, category, count)
+  @wip ||= {"sampled_at", Time.current}
+  @wip[source] ||= Hash.new(0)
+  @wip[source][category] += count
 end
 
 def print_wip
